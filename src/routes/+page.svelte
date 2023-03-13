@@ -14,7 +14,6 @@
 
     $: containerStyle = `grid-template-columns: repeat(${size}, 1fr); grid-template-rows: repeat(${size}, 1fr);`
     $: down = false;
-    $: showGrid = true;
     let colorPicker: HTMLElement;
     $: colorPickerStyle = '';
 
@@ -57,7 +56,7 @@
         {#each row as box, j}
         <div 
         style="background-color: {box.color};"
-        class={showGrid ? 'gridLines' : ''}
+        class=gridLines
         id='row{i}box{j}'
         bind:this={box.el}
         on:mousedown={() => box.color = brushColor}
@@ -74,11 +73,11 @@
     </div>
     <div class=toolbar >
         <input 
-        in:fade={{duration: 1000}}
-        type=color 
-        bind:value={brushColor} 
-        bind:this={colorPicker}
-        style={colorPickerStyle}
+            in:fade={{duration: 1000}}
+            type=color 
+            bind:value={brushColor} 
+            bind:this={colorPicker}
+            style={colorPickerStyle}
         >
         <button
         class=resetButton
