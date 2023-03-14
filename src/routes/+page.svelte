@@ -1,9 +1,10 @@
 <script lang=ts>
     import { onMount } from "svelte";
-
+    import { fly, fade } from 'svelte/transition';
     let grid: any[] = [];
     let brushColor: string = '#000000';
     let size: number = 16;
+    let sizeArray = [4,8,16,32];
     for (let i = 0; i < size; i++) {
         let row = [];
         for (let j = 0; j < size; j++) {
@@ -16,6 +17,8 @@
     $: down = false;
     let colorPicker: HTMLElement;
     $: colorPickerStyle = '';
+
+    let showModal = false;
 
     onMount(() => {
         let buttonEl = document.querySelector('button');
@@ -73,26 +76,46 @@
     </div>
     <div class=toolbar >
         <input 
-            in:fade={{duration: 1000}}
             type=color 
             bind:value={brushColor} 
             bind:this={colorPicker}
             style={colorPickerStyle}
         >
         <button
-        class=resetButton
+        class=newButton
         on:click={() => {
-            grid = grid.map(row => {
-                let newRow = row.map(box => {
-                    return { color: 'white'}
-                });
-                return newRow;
-            })
+            showModal = true;
         }}
-        >Reset</button>
+        >New</button>
     </div>
-
 </div>
+{#if showModal}
+<div class=modal transition:fade>
+    <div class=modalContent transition:fly={{y: 500}}>
+        <button class=closeButton on:click={() => showModal = false}>X</button>
+        <div class=gridButtonContainer>
+
+            {#each sizeArray as gridSize}
+                <button
+                    class=gridButton
+                    on:click={() => {
+                        let newGrid = [];
+                        for (let i = 0; i < gridSize; i++) {
+                            let row = [];
+                            for (let j = 0; j < gridSize; j++) {
+                                row.push({ color: 'white'})
+                            }
+                            newGrid.push(row);
+                        }
+                        grid = newGrid;
+                        size = gridSize;
+                        showModal = false;
+                }}>{gridSize}x</button>
+            {/each}
+        </div>
+    </div>
+</div>
+{/if}
 
 <style>
     :global(body, html) {
@@ -123,7 +146,7 @@
            width: 80vh;
         }
 
-        .resetButton {
+        .newButton {
             height: 50%;
             aspect-ratio: 1/1;
         }
@@ -135,7 +158,7 @@
            width: 90vw;
         }
 
-        .resetButton {
+        .newButton {
             width: 20vw;
             aspect-ratio: 1/1;
         }
@@ -149,15 +172,73 @@
         flex-grow: 1;
     }
 
-    .resetButton {
-        background-color: transparent;
+    input[type=color] {
+        transition: .5s;
+    }
+
+    button {
         border: none;
+        background-color: black;
         color: white;
-        outline: 2px solid white;
         border-radius: 5px;
+        outline: 2px solid white;
+        color: white;
+    }
+
+    .newButton {
+        background-color: transparent;
+        min-width: 3em;
+    }
+    
+    .gridButton {
+        padding: 1em;
+        margin: 0 1em 1em;
+        min-width: 4em;
+    }
+    
+    .gridButtonContainer {
+        display: flex;
+        flex-wrap: wrap;
+        /* row-gap: 1em; */
+        margin-top: 3em;
+        justify-content: space-evenly;
+
     }
 
     .gridLines {
         outline: 1px solid black;
+    }
+
+    .modal {
+        height: 100%;
+        width: 100%;
+        background-color: rgb(0,0,0,.6);
+        position: absolute;
+        top:0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modalContent {
+        background-color: white;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        flex-direction: row;
+        border-radius: .5em;
+        position: relative;
+    }
+
+    .closeButton {
+        color: black;
+        width: fit-content;
+        border: none;
+        outline: none;
+        background-color: transparent;
+        border-radius: 1em;
+        position: absolute;
+        right: 10px;
+        top: 10px;
     }
 </style>
